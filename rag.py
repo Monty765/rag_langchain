@@ -20,8 +20,6 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.embeddings import HuggingFaceEmbeddings
 
-# price is a factor for our company, so we're going to use a low cost model
-
 MODEL = "gpt-4o-mini"
 db_name = "vector_db"
 
@@ -40,10 +38,7 @@ def add_metadata(doc, doc_type):
     doc.metadata["doc_type"] = doc_type
     return doc
 
-# With thanks to CG and Jon R, students on the course, for this fix needed for some users 
 text_loader_kwargs = {'encoding': 'utf-8'}
-# If that doesn't work, some Windows users might need to uncomment the next line instead
-# text_loader_kwargs={'autodetect_encoding': True}
 
 documents = []
 for folder in folders:
@@ -80,7 +75,7 @@ if os.path.exists(db_name):
 vectorstore = Chroma.from_documents(documents=chunks, embedding=embeddings, persist_directory=db_name)
 print(f"Vectorstore created with {vectorstore._collection.count()} documents")
 
-# Let's investigate the vectors
+# Let's check the vectors
 
 collection = vectorstore._collection
 count = collection.count()
@@ -90,8 +85,6 @@ dimensions = len(sample_embedding)
 print(f"There are {count:,} vectors with {dimensions:,} dimensions in the vector store")
 
 
-# Prework (with thanks to Jon R for identifying and fixing a bug in this!)
-
 result = collection.get(include=['embeddings', 'documents', 'metadatas'])
 vectors = np.array(result['embeddings'])
 documents = result['documents']
@@ -100,7 +93,6 @@ doc_types = [metadata['doc_type'] for metadata in metadatas]
 colors = [['blue', 'green', 'red', 'orange'][['products', 'employees', 'contracts', 'company'].index(t)] for t in doc_types]
 
 
-# We humans find it easier to visalize things in 2D!
 # Reduce the dimensionality of the vectors to 2D using t-SNE
 # (t-distributed stochastic neighbor embedding)
 
